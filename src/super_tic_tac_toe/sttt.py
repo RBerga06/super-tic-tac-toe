@@ -3,6 +3,7 @@
 """Super Tic Tac Toe."""
 from enum import IntEnum
 from dataclasses import dataclass, field
+import time
 from typing import Annotated, Iterator, Literal, Protocol, cast
 from annotated_types import Len
 
@@ -78,6 +79,8 @@ def move(board: Matrix[Cell], x: Coord, y: Coord, m: Cell, /) -> Cell:
 
 
 class Player(Protocol):
+    name: str
+
     def choose(self, options: set[tuple[Coord, Coord, Coord, Coord]], /) -> tuple[Coord, Coord, Coord, Coord]:
         ...
 
@@ -131,8 +134,10 @@ class Game:
         move(self.board[X][Y], x, y, p)
         self.last_m = choice
 
-    def play(self, /) -> Literal[Cell.x, Cell.o, Cell.i]:
+    def play(self, /, *, sleep: float = 0) -> Literal[Cell.x, Cell.o, Cell.i]:
         while self.winner != Cell._:
             self.play1turn()
+            if sleep:
+                time.sleep(sleep)
         assert (winner := self.winner) != Cell._  # pyright is not smart enough
         return winner

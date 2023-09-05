@@ -1,0 +1,17 @@
+[project]
+name = "super-tic-tac-toe"
+version = "1.0.0"
+description = "Super Tic Tac Toe Engine"
+authors = [
+    {name = "RBerga06", email = "78449715+RBerga06@users.noreply.github.com"},
+]
+dependencies = [
+    "annotated-types>=0.5.0",
+]
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "AGPL"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"

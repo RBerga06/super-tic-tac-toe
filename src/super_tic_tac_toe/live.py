@@ -118,7 +118,7 @@ def live(game: Game, /) -> None:
         Layout(Align.center(board), name="bottom"),
     )
     with Live(layout):
-        winner = game.play(sleep=2)
+        winner = game.play(sleep=.5)
 
 
 if __name__ == "__main__":

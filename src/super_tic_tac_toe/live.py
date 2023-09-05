@@ -60,10 +60,10 @@ class Board:
 
     def __rich__(self, /) -> str:
         return (
-            "╻".join(["╷".join([" "*3]*3)]*3) + "\n" +  # first row
-            ("\n" + "╋".join(["┿".join(["━"*3]*3)]*3) + "\n").join([  # thick separator
-                ("\n" + "╂".join(["┼".join(["─"*3]*3)]*3) + "\n").join([  # thin separator
-                    "┃".join([
+            " ╻ ".join(["╷".join([" "*3]*3)]*3) + "\n" +  # first row
+            ("\n" + "━╋━".join(["━".join(["━"*3]*3)]*3) + "\n").join([  # thick separator
+                ("\n" + " ┃ ".join(["┼".join(["─"*3]*3)]*3) + "\n").join([  # thin separator
+                    " ┃ ".join([
                         "│".join([
                             f" {rich_cell[self.matrix[X][Y][x][y]]} "
                             for y in range(3)
@@ -74,7 +74,7 @@ class Board:
                 ])
                 for X in range(3)
             ])
-            + "\n" + "╹".join(["╵".join([" "*3]*3)]*3)  # last row
+            + "\n" + " ╹ ".join(["╵".join([" "*3]*3)]*3)  # last row
         )
 
 

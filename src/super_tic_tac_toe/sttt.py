@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """Super Tic Tac Toe."""
 from enum import IntEnum
-from dataclasses import dataclass
-from typing import Annotated, Iterator, Literal, cast
+from dataclasses import dataclass, field
+from typing import Annotated, Iterator, Literal, Protocol, cast
 from annotated_types import Len
 
 # The board is a 3x3x3x3 4D matrix:
@@ -29,7 +29,7 @@ type Matrix[T] = list3[list3[T]]
 type Coord = Literal[1, 2, 3]
 
 class Cell(IntEnum):
-    i = 0b00  # invalid
+    i = 0b00  # invalid/draw
     _ = 0b01  # empty square
     o = 0b10  # player 'o'
     x = 0b11  # player 'x'
@@ -77,14 +77,31 @@ def move(board: Matrix[Cell], x: Coord, y: Coord, m: Cell, /) -> Cell:
     return Cell.i      # game is finished
 
 
+class Player(Protocol):
+    def choose(self, options: set[tuple[Coord, Coord, Coord, Coord]], /) -> tuple[Coord, Coord, Coord, Coord]:
+        ...
+
+
 @dataclass(slots=True)
 class Game:
-    board: Matrix[Matrix[Cell]]
-    results: Matrix[Cell]
+    players: dict[Literal[Cell.x, Cell.o], Player]
+    last_p:  Literal[Cell.x, Cell.o] = Cell.o  # 'o' starts first
+    last_m:  tuple[Coord, Coord, Coord, Coord] | None = None
+    board:   Matrix[Matrix[Cell]] = field(init=False)
+    results: Matrix[Cell]         = field(init=False)
+    winner:  Cell                 = Cell._  # game on
 
-    def __init__(self, /) -> None:
+    def __post_init__(self, /) -> None:
         self.board = [[[[Cell._ for _3 in range(3)] for _2 in range(3)] for _1 in range(3)] for _0 in range(3)]
         self.results = [[Cell._ for _1 in range(3)] for _0 in range(3)]
+
+    @property
+    def next_p(self, /) -> Literal[Cell.o, Cell.x]:
+        match self.last_p:
+            case Cell.o:
+                return Cell.x
+            case Cell.x:
+                return Cell.o
 
     def _choices(self, X: Coord, Y: Coord, /) -> Iterator[tuple[Coord, Coord, Coord, Coord]]:
         board = self.board[X][Y]
@@ -105,3 +122,17 @@ class Game:
         for x in range(3):
             for y in range(3):
                 yield from self._choices(cast(Coord, x), cast(Coord, y))
+
+    def play1turn(self, /) -> None:
+        if self.winner != Cell._:
+            raise ValueError("Game ended!")
+        p = self.last_p = self.next_p
+        X, Y, x, y = choice = self.players[p].choose({*self.choices(None if self.last_m is None else self.last_m[2:])})
+        move(self.board[X][Y], x, y, p)
+        self.last_m = choice
+
+    def play(self, /) -> Literal[Cell.x, Cell.o, Cell.i]:
+        while self.winner != Cell._:
+            self.play1turn()
+        assert (winner := self.winner) != Cell._  # pyright is not smart enough
+        return winner

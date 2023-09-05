@@ -2,15 +2,10 @@
 # -*- coding: utf-8 -*-
 """Follow a SuperTicTacToe game “live” on your terminal."""
 from dataclasses import dataclass
-from rich import print
-from rich.padding import Padding
 from rich.align import Align
 from rich.layout import Layout
-from rich.panel import Panel
-from rich.console import Group
-from rich.columns import Columns
 from rich.live import Live
-from .sttt import Cell, Game, Matrix, Player
+from .sttt import Cell, Game, Matrix
 
 
 # -- Results -
@@ -52,6 +47,23 @@ rich_cell = {
     Cell.x: "[bold red]X[/]",
     Cell.o: "[bold blue]O[/]",
 }
+
+@dataclass(slots=True)
+class Winner:
+    game: Game
+
+    def __rich__(self, /) -> str:
+        players = f"[red]{self.game.X.name}[/red] vs [blue]{self.game.O.name}[/blue]"
+        match game.winner:
+            case Cell._:
+                info = "Game On!"
+            case Cell.x:
+                info = f"[red]{self.game.X.name} Wins![/red]"
+            case Cell.o:
+                info = f"[blue]{self.game.X.name} Wins![/blue]"
+            case Cell.i:
+                info = f"Draw!"
+        return f"[bold]{players}\n{info}[/]"
 
 
 @dataclass(slots=True)
@@ -98,17 +110,15 @@ def live(game: Game, /) -> None:
     """Follow the given `game` live."""
     board = Board(game.board)
     results = Results(game.results)
+    winner = Winner(game)
     layout = Layout()
     layout.split_column(
-        Layout(name="top"),
-        Layout(Align.center(board), name="bottom")
-    )
-    layout["top"].split_row(
-        Layout("Info", name="left"),
-        Layout(results, name="right"),
+        Layout(Align.center(winner), name="top", size=2),
+        Layout(Align.center(results), name="center", size=9),
+        Layout(Align.center(board), name="bottom"),
     )
     with Live(layout):
-        winner = game.play(sleep=1)
+        winner = game.play(sleep=2)
 
 
 if __name__ == "__main__":

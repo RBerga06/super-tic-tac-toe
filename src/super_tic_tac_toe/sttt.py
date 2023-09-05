@@ -101,7 +101,6 @@ class Game:
         self.results = [[Cell._ for _1 in range(3)] for _0 in range(3)]
         self.players = {Cell.x: self.X, Cell.o: self.O}
 
-    @property
     def next_p(self, /) -> Literal[Cell.o, Cell.x]:
         match self.last_p:
             case Cell.o:
@@ -116,25 +115,25 @@ class Game:
                 if board[x][y] == Cell._:
                     yield X, Y, cast(Coord, x), cast(Coord, y)
 
-    def choices(self, last: tuple[Coord, Coord] | None = None, /) -> Iterator[tuple[Coord, Coord, Coord, Coord]]:
+    def choices(self, /) -> Iterator[tuple[Coord, Coord, Coord, Coord]]:
         """List all possible moves after a move was played at `last` spot on a mini-board."""
-        if last is not None:
-            x, y = last
-            if self.results[x][y] != Cell._:
-                # game in that mini-board already ended
-                yield from self.choices(None)
+        last_move = self.last_m
+        if last_move is not None:
+            _X, _Y, x, y = last_move
+            if self.results[x][y] == Cell._:
+                # game there has not ended yet
+                yield from self._choices(x, y)
                 return
-            yield from self._choices(x, y)
-        for x in range(3):
-            for y in range(3):
-                if self.results[x][y] == Cell._:
-                    yield from self._choices(cast(Coord, x), cast(Coord, y))
+        for X in range(3):
+            for Y in range(3):
+                if self.results[X][Y] == Cell._:
+                    yield from self._choices(cast(Coord, X), cast(Coord, Y))
 
     def play1turn(self, /) -> None:
         if self.winner != Cell._:
             raise ValueError("Game ended!")
-        p = self.last_p = self.next_p
-        X, Y, x, y = choice = self.players[p].choose({*self.choices(None if self.last_m is None else self.last_m[2:])})
+        p = self.last_p = self.next_p()
+        X, Y, x, y = choice = self.players[p].choose({*self.choices()})
         self.winner = move(self.results, X, Y, move(self.board[X][Y], x, y, p))
         self.last_m = choice
 

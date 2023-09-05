@@ -112,26 +112,9 @@ def live(game: Game, /) -> None:
 
 
 if __name__ == "__main__":
-    _b = Board([[[
-            [Cell.x, Cell.o, Cell.i],
-            [Cell.i, Cell._, Cell.x],
-            [Cell.o, Cell.i, Cell._],
-        ]*3]*3]*3
+    from .randobot import RandoBot
+    game = Game(
+        RandoBot(),
+        RandoBot(),
     )
-    _r = Results([
-        [Cell.x, Cell.o, Cell.i],
-        [Cell.i, Cell._, Cell.x],
-        [Cell.o, Cell.i, Cell._],
-    ])
-    layout = Layout()
-    layout.split_column(
-        Layout(name="top"),
-        Layout(Align.center(_b), name="bottom")
-    )
-    layout["top"].split_row(
-        Layout("Info", name="left"),
-        Layout(_r, name="right"),
-    )
-    # print(repr(_b.__rich__()))
-    # print(Panel.fit(Group(_b, _r), title="X (99999) vs O (0)"))
-    print(layout)
+    live(game)

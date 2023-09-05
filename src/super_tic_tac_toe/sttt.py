@@ -87,7 +87,9 @@ class Player(Protocol):
 
 @dataclass(slots=True)
 class Game:
-    players: dict[Literal[Cell.x, Cell.o], Player]
+    X: Player
+    O: Player
+    players: dict[Literal[Cell.x, Cell.o], Player] = field(init=False)
     last_p:  Literal[Cell.x, Cell.o] = Cell.o  # 'o' starts first
     last_m:  tuple[Coord, Coord, Coord, Coord] | None = None
     board:   Matrix[Matrix[Cell]] = field(init=False)
@@ -97,6 +99,7 @@ class Game:
     def __post_init__(self, /) -> None:
         self.board = [[[[Cell._ for _3 in range(3)] for _2 in range(3)] for _1 in range(3)] for _0 in range(3)]
         self.results = [[Cell._ for _1 in range(3)] for _0 in range(3)]
+        self.players = {Cell.x: self.X, Cell.o: self.O}
 
     @property
     def next_p(self, /) -> Literal[Cell.o, Cell.x]:
@@ -124,20 +127,20 @@ class Game:
             yield from self._choices(x, y)
         for x in range(3):
             for y in range(3):
-                yield from self._choices(cast(Coord, x), cast(Coord, y))
+                if self.results[x][y] == Cell._:
+                    yield from self._choices(cast(Coord, x), cast(Coord, y))
 
     def play1turn(self, /) -> None:
         if self.winner != Cell._:
             raise ValueError("Game ended!")
         p = self.last_p = self.next_p
         X, Y, x, y = choice = self.players[p].choose({*self.choices(None if self.last_m is None else self.last_m[2:])})
-        move(self.board[X][Y], x, y, p)
+        self.winner = move(self.results, X, Y, move(self.board[X][Y], x, y, p))
         self.last_m = choice
 
     def play(self, /, *, sleep: float = 0) -> Literal[Cell.x, Cell.o, Cell.i]:
-        while self.winner != Cell._:
+        while self.winner == Cell._:
             self.play1turn()
             if sleep:
                 time.sleep(sleep)
-        assert (winner := self.winner) != Cell._  # pyright is not smart enough
-        return winner
+        return self.winner

@@ -88,6 +88,7 @@ class Player(Protocol):
         ...
 
 
+ELO_0 = 800.00  # inital rating
 ELO_K = 40
 
 def deltaElo(X: float, O: float, result: Literal[Cell.x, Cell.i, Cell.o], /) -> tuple[float, float]:

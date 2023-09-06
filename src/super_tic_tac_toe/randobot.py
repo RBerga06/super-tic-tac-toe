@@ -6,14 +6,14 @@ import random
 from typing import ClassVar
 from typing_extensions import override
 
-from .sttt import Coord, Player
+from .sttt import Coord, Player, ELO_0
 
 
 @dataclass
 class RandoBot(Player):
     _counter: ClassVar[int] = 0
     name: str = field(init=False)
-    rating: float = .0
+    rating: float = ELO_0
 
     def __post_init__(self, /) -> None:
         self.name = f"RandoBot {type(self)._counter}"

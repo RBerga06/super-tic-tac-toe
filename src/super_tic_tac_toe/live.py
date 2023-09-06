@@ -54,13 +54,13 @@ class Winner:
 
     def __rich__(self, /) -> str:
         players = f"[red]{self.game.X.name}[/red] vs [blue]{self.game.O.name}[/blue]"
-        match game.winner:
+        match self.game.winner:
             case Cell._:
                 info = "Game On!"
             case Cell.x:
                 info = f"[red]{self.game.X.name} Wins![/red]"
             case Cell.o:
-                info = f"[blue]{self.game.X.name} Wins![/blue]"
+                info = f"[blue]{self.game.O.name} Wins![/blue]"
             case Cell.i:
                 info = f"Draw!"
         return f"[bold]{players}\n{info}[/]"

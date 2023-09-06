@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Follow a SuperTicTacToe game “live” on your terminal."""
 from dataclasses import dataclass
+from time import sleep
 from rich.align import Align
 from rich.layout import Layout
 from rich.live import Live
@@ -53,7 +54,7 @@ class Winner:
     game: Game
 
     def __rich__(self, /) -> str:
-        players = f"[red]{self.game.X.name}[/red] vs [blue]{self.game.O.name}[/blue]"
+        players = f"[red]{self.game.X.name} ({self.game.X.rating})[/red] vs [blue]{self.game.O.name} ({self.game.O.rating})[/blue]"
         match self.game.winner:
             case Cell._:
                 info = "Game On!"
@@ -123,8 +124,9 @@ def live(game: Game, /) -> None:
 
 if __name__ == "__main__":
     from .randobot import RandoBot
-    game = Game(
-        RandoBot(),
-        RandoBot(),
-    )
-    live(game)
+    rb1, rb2 = RandoBot(), RandoBot()
+    while True:
+        live(Game(rb1, rb2))
+        sleep(3)
+        live(Game(rb2, rb1))
+        sleep(3)

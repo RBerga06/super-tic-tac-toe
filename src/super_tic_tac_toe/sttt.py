@@ -172,7 +172,10 @@ class Game:
 class Tournament:
     players: list[Player]
 
-    def play(self, /, *, times: int = 1) -> None:
-        for _ in range(times):
-            for X, O in permutations(self.players, 2):
-                Game(X, O).play()
+    def games(self, /) -> Iterator[Game]:
+        for X, O in permutations(self.players, 2):
+            yield Game(X, O)
+
+    def play(self, /) -> None:
+        for game in self.games():
+            game.play()

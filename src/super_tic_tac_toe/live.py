@@ -127,10 +127,13 @@ def live(game: Game, /, *, sleep: float = 1) -> None:
 
 
 if __name__ == "__main__":
+    from .sttt import Tournament
     from .randobot import RandoBot
-    rb1, rb2 = RandoBot(), RandoBot()
+    tournament = Tournament([RandoBot() for _ in range(10)])
     while True:
-        live(Game(rb1, rb2), sleep=.25)
-        sleep(1)
-        live(Game(rb2, rb1), sleep=.25)
-        sleep(1)
+        for game in tournament.games():
+            try:
+                live(game, sleep=.25)
+                sleep(1)
+            except KeyboardInterrupt:
+                exit(0)

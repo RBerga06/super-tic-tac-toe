@@ -67,7 +67,7 @@ def move(board: Matrix[Cell], x: Coord, y: Coord, m: Cell, /) -> Cell:
     board[x][y] = m
     if getRaw(board, x) == (m, m, m):
         return m
-    if getCol(board, x) == (m, m, m):
+    if getCol(board, y) == (m, m, m):
         return m
     if x == y and getDiag1(board) == (m, m, m):
         return m
@@ -116,7 +116,7 @@ class Game:
                     yield X, Y, cast(Coord, x), cast(Coord, y)
 
     def choices(self, /) -> Iterator[tuple[Coord, Coord, Coord, Coord]]:
-        """List all possible moves after a move was played at `last` spot on a mini-board."""
+        """List all possible moves for the next player."""
         last_move = self.last_m
         if last_move is not None:
             _X, _Y, x, y = last_move

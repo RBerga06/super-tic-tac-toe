@@ -54,7 +54,11 @@ class Winner:
     game: Game
 
     def __rich__(self, /) -> str:
-        players = f"[red]{self.game.X.name} ({self.game.X.rating})[/red] vs [blue]{self.game.O.name} ({self.game.O.rating})[/blue]"
+        players = (
+            f"[red]{self.game.X.name} ({self.game.X.rating:.0f})[/red]"
+            " vs "
+            f"[blue]{self.game.O.name} ({self.game.O.rating:.0f})[/blue]"
+        )
         match self.game.winner:
             case Cell._:
                 info = "Game On!"
@@ -107,7 +111,7 @@ class Results:
         ])
 
 
-def live(game: Game, /) -> None:
+def live(game: Game, /, *, sleep: float = 1) -> None:
     """Follow the given `game` live."""
     board = Board(game.board)
     results = Results(game.results)
@@ -119,14 +123,14 @@ def live(game: Game, /) -> None:
         Layout(Align.center(board), name="bottom"),
     )
     with Live(layout):
-        winner = game.play(sleep=.5)
+        winner = game.play(sleep=sleep)
 
 
 if __name__ == "__main__":
     from .randobot import RandoBot
     rb1, rb2 = RandoBot(), RandoBot()
     while True:
-        live(Game(rb1, rb2))
-        sleep(3)
-        live(Game(rb2, rb1))
-        sleep(3)
+        live(Game(rb1, rb2), sleep=.25)
+        sleep(1)
+        live(Game(rb2, rb1), sleep=.25)
+        sleep(1)

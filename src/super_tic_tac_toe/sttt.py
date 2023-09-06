@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# pyright: reportConstantRedefinition=false
 """Super Tic Tac Toe."""
 from enum import IntEnum
 from dataclasses import dataclass, field
+from itertools import permutations
 import time
 from typing import Annotated, Iterator, Literal, Protocol, cast
 from annotated_types import Len
@@ -80,17 +82,34 @@ def move(board: Matrix[Cell], x: Coord, y: Coord, m: Cell, /) -> Cell:
 
 class Player(Protocol):
     name: str
+    rating: float
 
     def choose(self, options: set[tuple[Coord, Coord, Coord, Coord]], /) -> tuple[Coord, Coord, Coord, Coord]:
         ...
+
+
+ELO_K = 40
+
+def deltaElo(X: float, O: float, result: Literal[Cell.x, Cell.i, Cell.o], /) -> tuple[float, float]:
+    EX = 1 / (1 + 10 ** ((O - X)/400))  # expected score X
+    EO = 1 - EX                         # expected score O
+    match result:
+        case Cell.x:  # x wins
+            SX, SO = 1, 0
+        case Cell.i:  # draw
+            SX, SO = .5, .5
+        case Cell.o:  # o wins
+            SX, SO = 0, 1
+    return ELO_K * (SX - EX), ELO_K * (SO - EO)
 
 
 @dataclass(slots=True)
 class Game:
     X: Player
     O: Player
+    rated:   bool = True
     players: dict[Literal[Cell.x, Cell.o], Player] = field(init=False)
-    last_p:  Literal[Cell.x, Cell.o] = Cell.o  # 'o' starts first
+    last_p:  Literal[Cell.x, Cell.o] = Cell.x  # 'x' starts first
     last_m:  tuple[Coord, Coord, Coord, Coord] | None = None
     board:   Matrix[Matrix[Cell]] = field(init=False)
     results: Matrix[Cell]         = field(init=False)
@@ -142,4 +161,16 @@ class Game:
             self.play1turn()
             if sleep:
                 time.sleep(sleep)
+        dX, dO = deltaElo(self.X.rating, self.O.rating, self.winner)
+        self.X.rating += dX
+        self.O.rating += dO
         return self.winner
+
+
+@dataclass
+class Tournament:
+    players: list[Player]
+
+    def play(self, /) -> None:
+        for X, O in permutations(self.players, 2):
+            Game(X, O).play()

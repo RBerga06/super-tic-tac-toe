@@ -13,6 +13,7 @@ from .sttt import Coord, Player
 class RandoBot(Player):
     _counter: ClassVar[int] = 0
     name: str = field(init=False)
+    rating: float = .0
 
     def __post_init__(self, /) -> None:
         self.name = f"RandoBot {type(self)._counter}"

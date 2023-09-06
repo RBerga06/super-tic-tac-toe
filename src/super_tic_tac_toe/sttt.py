@@ -171,6 +171,7 @@ class Game:
 class Tournament:
     players: list[Player]
 
-    def play(self, /) -> None:
-        for X, O in permutations(self.players, 2):
-            Game(X, O).play()
+    def play(self, /, *, times: int = 1) -> None:
+        for _ in range(times):
+            for X, O in permutations(self.players, 2):
+                Game(X, O).play()

@@ -4,7 +4,8 @@ For the rules, see [Vsauce's YouTube Short](https://youtube.com/shorts/_Na3a1ZrX
 
 ### Requirements
 
-* [Python](https://www.python.org/) 3.11+ (you might consider installing it via [pyenv](https://github.com/pyenv/pyenv/))
+* [GitHub CLI](https://cli.github.com/)
+* [Python](https://www.python.org/) 3.12+ (you might consider installing it via [pyenv](https://github.com/pyenv/pyenv/))
 * [Probably Doesn't Matter](https://pdm.fming.dev/)
 
 ### How to use this
